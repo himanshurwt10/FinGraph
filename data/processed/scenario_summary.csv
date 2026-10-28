@@ -1,0 +1,4 @@
+scenario_label,transaction_count,total_amount
+cycle_simulation,3,43500.0
+normal,1000,25260401.75
+starburst_simulation,25,247500.0
