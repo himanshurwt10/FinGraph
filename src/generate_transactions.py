@@ -72,3 +72,4 @@ with OUTPUT_FILE.open("w", newline="", encoding="utf-8") as file:
 print(f"Transactions generated: {len(transactions)}")
 print(f"Output saved to: {OUTPUT_FILE}")
 print("Synthetic suspicious scenarios: included")
+
