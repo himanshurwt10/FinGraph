@@ -21,3 +21,4 @@ print(df["scenario_label"].value_counts())
 
 print("\n--- Transaction summary ---")
 print(df["amount"].describe())
+
