@@ -1,0 +1,2 @@
+receiver,transaction_count,unique_senders,total_received,minimum_amount,maximum_amount
+A9001,25,25,247500.0,9900.0,9900.0
