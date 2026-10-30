@@ -1,0 +1,4 @@
+apache-flink==2.2.1
+kafka-python==3.0.12
+neo4j==6.4.1
+python-dotenv
