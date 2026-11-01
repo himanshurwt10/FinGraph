@@ -28,12 +28,20 @@ driver = GraphDatabase.driver(
 )
 
 
+# Kafka Consumer Configuration
 consumer = KafkaConsumer(
     "transactions_processed",
     bootstrap_servers=["localhost:9092"],
     group_id="fingraph-neo4j-sink",
     auto_offset_reset="earliest",
     enable_auto_commit=False,
+
+    max_poll_interval_ms=1800000,
+    max_poll_records=1,
+
+    session_timeout_ms=30000,
+    heartbeat_interval_ms=10000,
+
     value_deserializer=lambda value: json.loads(
         value.decode("utf-8")
     )
@@ -327,4 +335,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
