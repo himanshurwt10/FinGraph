@@ -15,8 +15,12 @@ ACCOUNTS = [f"A{i:04d}" for i in range(1, 121)]
 CHANNELS = ["UPI", "NEFT", "IMPS", "RTGS", "CARD"]
 COUNTRIES = ["IN", "US", "GB", "SG"]
 
+
 def create_transaction():
     sender, receiver = random.sample(ACCOUNTS, 2)
+
+    # Generate suspicious transactions with a 10% probability
+    is_suspicious = random.random() < 0.10
 
     return {
         "transaction_id": str(uuid.uuid4()),
@@ -28,9 +32,14 @@ def create_transaction():
         "channel": random.choice(CHANNELS),
         "sender_country": "IN",
         "receiver_country": random.choice(COUNTRIES),
-        "scenario_label": "streaming_simulation",
-        "is_synthetic_suspicious": 0
+        "scenario_label": (
+            "suspicious_streaming_simulation"
+            if is_suspicious
+            else "streaming_simulation"
+        ),
+        "is_synthetic_suspicious": int(is_suspicious)
     }
+
 
 def main():
     producer = KafkaProducer(
@@ -52,7 +61,9 @@ def main():
             try:
                 producer.send(TOPIC, value=transaction).get(timeout=10)
                 count += 1
+
                 print(f"Published #{count}: {transaction}")
+
             except KafkaError as error:
                 print(f"Kafka publish failed: {error}")
 
@@ -64,6 +75,7 @@ def main():
     finally:
         producer.flush()
         producer.close()
+
 
 if __name__ == "__main__":
     main()
