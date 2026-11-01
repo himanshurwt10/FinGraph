@@ -7,3 +7,6 @@ six==1.17.0
 tzdata==2026.5
 python-dotenv
 kafka-python==3.0.12
+streamlit==1.66.1
+plotly==7.1.0
+networkx==3.7
