@@ -18,10 +18,30 @@ from neo4j import GraphDatabase
 
 load_dotenv()
 
-NEO4J_URI = os.getenv("NEO4J_URI")
-NEO4J_USERNAME = os.getenv("NEO4J_USERNAME")
-NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
-NEO4J_DATABASE = os.getenv("NEO4J_DATABASE", "neo4j")
+
+def get_config_value(key, default=None):
+    """Read a value from Streamlit Secrets first, then environment variables."""
+    try:
+        value = st.secrets.get(key)
+    except Exception:
+        # Local development may not have a .streamlit/secrets.toml file.
+        value = None
+
+    if value is not None and str(value).strip():
+        return value
+
+    value = os.getenv(key)
+    if value is not None and str(value).strip():
+        return value
+
+    return default
+
+
+# AuraDB is preferred. If Aura credentials are absent, fall back to local Neo4j.
+NEO4J_URI = get_config_value("AURA_URI") or get_config_value("NEO4J_URI")
+NEO4J_USERNAME = get_config_value("AURA_USERNAME") or get_config_value("NEO4J_USERNAME")
+NEO4J_PASSWORD = get_config_value("AURA_PASSWORD") or get_config_value("NEO4J_PASSWORD")
+NEO4J_DATABASE = get_config_value("AURA_DATABASE") or get_config_value("NEO4J_DATABASE", "neo4j")
 
 st.set_page_config(
     page_title="FinGraph | Fraud Intelligence",
@@ -31,7 +51,7 @@ st.set_page_config(
 )
 
 if not all([NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD]):
-    st.error("Neo4j configuration missing. Check your .env file.")
+    st.error("Database configuration missing. Add AURA_URI, AURA_USERNAME and AURA_PASSWORD to Streamlit Secrets or your local .env file.")
     st.stop()
 
 
