@@ -8,23 +8,25 @@ from neo4j import GraphDatabase
 
 load_dotenv()
 
-NEO4J_URI = os.getenv("NEO4J_URI")
-NEO4J_USERNAME = os.getenv("NEO4J_USERNAME")
-NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
-NEO4J_DATABASE = os.getenv("NEO4J_DATABASE")
+
+# AuraDB Configuration
+AURA_URI = os.getenv("AURA_URI")
+AURA_USERNAME = os.getenv("AURA_USERNAME")
+AURA_PASSWORD = os.getenv("AURA_PASSWORD")
+AURA_DATABASE = os.getenv("NEO4J_DATABASE", "1ba45ead")
 
 if not all([
-    NEO4J_URI,
-    NEO4J_USERNAME,
-    NEO4J_PASSWORD,
-    NEO4J_DATABASE
+    AURA_URI,
+    AURA_USERNAME,
+    AURA_PASSWORD,
+    AURA_DATABASE
 ]):
-    raise ValueError("Neo4j configuration missing in .env")
+    raise ValueError("AuraDB configuration missing in .env")
 
 
 driver = GraphDatabase.driver(
-    NEO4J_URI,
-    auth=(NEO4J_USERNAME, NEO4J_PASSWORD)
+    AURA_URI,
+    auth=(AURA_USERNAME, AURA_PASSWORD)
 )
 
 
@@ -50,7 +52,7 @@ consumer = KafkaConsumer(
 
 def save_transaction(tx, data):
 
-    # 1. Save transaction in Neo4j
+    # 1. Save transaction in AuraDB
     transaction_query = """
     MERGE (sender:Account {
         account_id: $sender_account
@@ -268,7 +270,8 @@ def main():
 
     driver.verify_connectivity()
 
-    print("Neo4j connection successful!")
+    print("AuraDB connection successful!")
+    print("Database:", AURA_DATABASE)
     print("Waiting for processed Kafka transactions...")
     print("Temporal cycle detection enabled!")
     print("Real-time fraud alert system enabled!")
@@ -287,7 +290,7 @@ def main():
             try:
 
                 with driver.session(
-                    database=NEO4J_DATABASE
+                    database=AURA_DATABASE
                 ) as session:
 
                     risk_updates, generated_alerts = (
@@ -297,11 +300,11 @@ def main():
                         )
                     )
 
-                # Commit Kafka offset only after Neo4j succeeds
+                # Commit Kafka offset only after AuraDB succeeds
                 consumer.commit()
 
                 print(
-                    "Neo4j updated:",
+                    "AuraDB updated:",
                     data.get("transaction_id")
                 )
 
@@ -325,7 +328,7 @@ def main():
 
     except KeyboardInterrupt:
 
-        print("Stopping Neo4j sink...")
+        print("Stopping AuraDB sink...")
 
     finally:
 
